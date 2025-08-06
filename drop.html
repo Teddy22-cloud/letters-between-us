@@ -72,45 +72,55 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
-      authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
-      projectId: "lettersbetweenus-5a1f3",
-      storageBucket: "lettersbetweenus-5a1f3.appspot.com",
-      messagingSenderId: "756033556177",
-      appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
+    authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
+    projectId: "lettersbetweenus-5a1f3",
+    storageBucket: "lettersbetweenus-5a1f3.appspot.com",
+    messagingSenderId: "756033556177",
+    appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    const form = document.querySelector("form");
+  const form = document.querySelector("form");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const title = form.querySelector("input[type='text']").value;
-      const body = form.querySelector("textarea").value;
+    const passcode = localStorage.getItem("passcode");
+    const sender = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
+    const recipient = sender === "me" ? "her" : "me";
 
-      try {
-        await addDoc(collection(db, "letters"), {
-          title,
-          body,
-          sender: "me",
-          recipient: "her",
-          timestamp: serverTimestamp()
-        });
+    if (!sender || !recipient) {
+      alert("Login session expired. Please log in again.");
+      window.location.href = "index.html";
+      return;
+    }
 
-        alert("💌 Letter sent!");
-        form.reset();
-      } catch (err) {
-        console.error("Error sending letter:", err);
-        alert("Something went wrong.");
-      }
-    });
-  </script>
+    const title = form.querySelector("input[type='text']").value;
+    const message = form.querySelector("textarea").value;
+
+    try {
+      await addDoc(collection(db, "letters"), {
+        title,
+        message,
+        sender,
+        recipient,
+        timestamp: serverTimestamp()
+      });
+
+      alert("💌 Letter sent!");
+      form.reset();
+    } catch (err) {
+      console.error("Error sending letter:", err);
+      alert("Something went wrong.");
+    }
+  });
+</script>
 </body>
 </html>
