@@ -70,60 +70,61 @@
   <div class="inbox" id="inbox"></div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
-      authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
-      projectId: "lettersbetweenus-5a1f3",
-      storageBucket: "lettersbetweenus-5a1f3.appspot.com",
-      messagingSenderId: "756033556177",
-      appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
+  const firebaseConfig = {
+    apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
+    authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
+    projectId: "lettersbetweenus-5a1f3",
+    storageBucket: "lettersbetweenus-5a1f3.appspot.com",
+    messagingSenderId: "756033556177",
+    appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const passcode = localStorage.getItem("passcode");
+  const recipient = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
+
+  if (!recipient) {
+    alert("No passcode found. Please login again.");
+    window.location.href = "index.html";
+  } else {
+    const inbox = document.getElementById("inbox");
+
+    const fetchLetters = async () => {
+      const q = query(
+        collection(db, "letters"),
+        where("recipient", "==", recipient),
+        orderBy("timestamp", "desc")
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        inbox.innerHTML = "<p style='text-align:center;'>No letters yet 💌</p>";
+        return;
+      }
+
+      querySnapshot.forEach(doc => {
+        const letter = doc.data();
+        const date = letter.timestamp?.toDate().toLocaleString() || "(no date)";
+
+        const el = document.createElement("div");
+        el.className = "letter-preview";
+        el.innerHTML = `
+          <div class="letter-title">${letter.title}</div>
+          <div class="preview-text">${letter.message}</div>
+          <div class="timestamp">Sent on ${date}</div>
+        `;
+        inbox.appendChild(el);
+      });
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const passcode = prompt("Enter your passcode:");
-    const recipient = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
-
-    if (!recipient) {
-      alert("Incorrect passcode.");
-    } else {
-      const inbox = document.getElementById("inbox");
-
-      const fetchLetters = async () => {
-        const q = query(
-          collection(db, "letters"),
-          where("recipient", "==", recipient),
-          orderBy("timestamp", "desc")
-        );
-
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          inbox.innerHTML = "<p style='text-align:center;'>No letters yet 💌</p>";
-          return;
-        }
-
-        querySnapshot.forEach(doc => {
-          const letter = doc.data();
-          const date = letter.timestamp?.toDate().toLocaleString() || "(no date)";
-
-          const el = document.createElement("div");
-          el.className = "letter-preview";
-          el.innerHTML = `
-            <div class="letter-title">${letter.title}</div>
-            <div class="preview-text">${letter.body}</div>
-            <div class="timestamp">Sent on ${date}</div>
-          `;
-          inbox.appendChild(el);
-        });
-      };
-
-      fetchLetters();
-    }
-  </script>
+    fetchLetters();
+  }
+</script>
 </body>
 </html>

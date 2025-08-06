@@ -79,20 +79,22 @@
   </main>
 
   <script>
-    document.getElementById('passcodeForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      const passcode = document.getElementById('passcodeInput').value.trim();
-      const userPasscode = "sunlight";  // your side
-      const partnerPasscode = "moonlight";  // her side
+  document.getElementById('passcodeForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const passcode = document.getElementById('passcodeInput').value.trim().toLowerCase();
+    const userPasscode = "sunlight";
+    const partnerPasscode = "moonlight";
 
-      if (passcode === userPasscode) {
-        window.location.href = "dashboard_user.html";
-      } else if (passcode === partnerPasscode) {
-        window.location.href = "dashboard_partner.html";
-      } else {
-        document.getElementById('errorMsg').textContent = "Incorrect passcode. Please try again.";
-      }
-    });
-  </script>
+    if (passcode === userPasscode) {
+      localStorage.setItem("passcode", "sunlight"); // Save it for later
+      window.location.href = "dashboard_user.html";
+    } else if (passcode === partnerPasscode) {
+      localStorage.setItem("passcode", "moonlight");
+      window.location.href = "dashboard_partner.html";
+    } else {
+      document.getElementById('errorMsg').textContent = "Incorrect passcode. Please try again.";
+    }
+  });
+</script>
 </body>
 </html>
