@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Letters Between Us</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background-color: #f9f9fb;
+      color: #1d1d1f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .site-title {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      color: #333;
+    }
+
+    .passcode-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .passcode-form input[type="password"] {
+      padding: 0.75rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s ease-in-out;
+    }
+
+    .passcode-form input[type="password"]:focus {
+      border-color: #888;
+    }
+
+    .passcode-form button {
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 10px;
+      background-color: #1d1d1f;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .passcode-form button:hover {
+      background-color: #333;
+    }
+
+    .error-msg {
+      color: #d93025;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="entry-screen">
+    <h1 class="site-title">Letters Between Us</h1>
+    <form id="passcodeForm" class="passcode-form">
+      <input type="password" id="passcodeInput" placeholder="Enter passcode" required />
+      <button type="submit">Enter</button>
+    </form>
+    <p id="errorMsg" class="error-msg"></p>
+  </main>
+
+  <script>
+    document.getElementById('passcodeForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const passcode = document.getElementById('passcodeInput').value.trim();
+      const userPasscode = "appletree";  // your side
+      const partnerPasscode = "sunflower";  // her side
+
+      if (passcode === userPasscode) {
+        window.location.href = "dashboard_user.html";
+      } else if (passcode === partnerPasscode) {
+        window.location.href = "dashboard_partner.html";
+      } else {
+        document.getElementById('errorMsg').textContent = "Incorrect passcode. Please try again.";
+      }
+    });
+  </script>
+</body>
+</html>
