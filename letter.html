@@ -3,53 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Love Letter</title>
+  <title>Your Letter</title>
   <style>
     body {
-      margin: 0;
-      padding: 2rem 1rem;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background-color: #fff;
+      margin: 0;
+      padding: 2rem;
+      background-color: #f9f9fb;
       color: #1d1d1f;
     }
 
     .container {
-      max-width: 700px;
-      margin: 0 auto;
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
     }
 
     h1 {
-      font-size: 1.75rem;
-      margin-bottom: 0.5rem;
+      font-size: 2rem;
+      margin-bottom: 1rem;
     }
 
-    .date {
+    .timestamp {
       font-size: 0.9rem;
-      color: #666;
+      color: #888;
       margin-bottom: 2rem;
     }
 
     .content {
-      font-size: 1rem;
-      line-height: 1.7;
+      font-size: 1.1rem;
+      line-height: 1.6;
       white-space: pre-wrap;
     }
 
-    .back {
-      display: inline-block;
-      margin-top: 2rem;
+    .actions {
+      margin-top: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back-link {
       text-decoration: none;
       color: #0066cc;
       font-size: 0.95rem;
+    }
+
+    .reply-btn {
+      padding: 0.5rem 1rem;
+      background-color: #1d1d1f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .reply-btn:hover {
+      background-color: #333;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 id="letter-title">Loading...</h1>
-    <div class="date" id="letter-date"></div>
-    <div class="content" id="letter-body"></div>
-    <a href="letters.html" class="back">← Back to Inbox</a>
+    <h1 id="letterTitle">Loading...</h1>
+    <div class="timestamp" id="letterTime"></div>
+    <div class="content" id="letterBody"></div>
+
+    <div class="actions">
+      <a href="letters.html" class="back-link">← Back to Inbox</a>
+      <button id="replyBtn" class="reply-btn">Reply</button>
+    </div>
   </div>
 
   <script type="module">
@@ -72,23 +99,23 @@
     const id = params.get("id");
 
     if (!id) {
-      document.getElementById("letter-title").textContent = "Letter not found.";
-      document.getElementById("letter-body").textContent = "No letter ID provided in the URL.";
+      document.getElementById("letterTitle").textContent = "Letter not found.";
     } else {
-      const letterRef = doc(db, "letters", id);
-      getDoc(letterRef).then(docSnap => {
+      const docRef = doc(db, "letters", id);
+      getDoc(docRef).then((docSnap) => {
         if (docSnap.exists()) {
           const letter = docSnap.data();
-          document.getElementById("letter-title").textContent = letter.title || "(No title)";
-          document.getElementById("letter-body").textContent = letter.body || "(No content)";
-          const ts = letter.timestamp?.toDate().toLocaleString() || "(No date)";
-          document.getElementById("letter-date").textContent = "Sent on " + ts;
+          document.getElementById("letterTitle").textContent = letter.title;
+          document.getElementById("letterTime").textContent = "Sent on " + (letter.timestamp?.toDate().toLocaleString() || "(no date)");
+          document.getElementById("letterBody").textContent = letter.body;
+
+          document.getElementById("replyBtn").addEventListener("click", () => {
+            const subject = encodeURIComponent("RE: " + letter.title);
+            window.location.href = `drop.html?title=${subject}`;
+          });
         } else {
-          document.getElementById("letter-title").textContent = "Letter not found.";
+          document.getElementById("letterTitle").textContent = "Letter not found.";
         }
-      }).catch(err => {
-        console.error("Error loading letter:", err);
-        document.getElementById("letter-title").textContent = "Error loading letter.";
       });
     }
   </script>
