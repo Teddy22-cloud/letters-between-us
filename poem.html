@@ -63,6 +63,12 @@
       border-radius: 10px;
       margin-bottom: 1.5rem;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .poem-entry:hover {
+      background-color: #f8f8f8;
     }
 
     .poem-title {
@@ -71,10 +77,8 @@
       margin-bottom: 0.5rem;
     }
 
-    .poem-image {
-      margin-top: 1rem;
-      max-width: 100%;
-      border-radius: 6px;
+    .poem-body {
+      color: #444;
     }
   </style>
 </head>
@@ -82,21 +86,17 @@
   <div class="container">
     <h1>Shared Poems & Images</h1>
     <form id="poemForm">
-      <input type="text" id="poemTitle" placeholder="Poem Title" required />
-      <textarea id="poemBody" placeholder="Write your poem here..." required></textarea>
+      <input type="text" id="titleInput" placeholder="Poem Title" required />
+      <textarea id="bodyInput" placeholder="Write your poem here..." required></textarea>
       <button type="submit">Save</button>
     </form>
 
-    <div class="poem-entry">
-      <div class="poem-title" id="displayTitle">Loading...</div>
-      <div id="displayBody">Please wait...</div>
-      <img id="displayImage" class="poem-image" style="display: none;" />
-    </div>
+    <div id="poemList"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
@@ -109,57 +109,55 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const poemRef = doc(db, "poem", "shared");
 
-    const titleInput = document.getElementById("poemTitle");
-    const bodyInput = document.getElementById("poemBody");
-    const displayTitle = document.getElementById("displayTitle");
-    const displayBody = document.getElementById("displayBody");
-    const displayImage = document.getElementById("displayImage");
+    const form = document.getElementById("poemForm");
+    const titleInput = document.getElementById("titleInput");
+    const bodyInput = document.getElementById("bodyInput");
+    const poemList = document.getElementById("poemList");
 
-    async function loadPoem() {
-      try {
-        const snap = await getDoc(poemRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          titleInput.value = data.title || "";
-          bodyInput.value = data.body || "";
-
-          displayTitle.textContent = data.title || "(No title)";
-          displayBody.textContent = data.body || "";
-          if (data.imageUrl) {
-            displayImage.src = data.imageUrl;
-            displayImage.style.display = "block";
-          } else {
-            displayImage.style.display = "none";
-          }
-        } else {
-          displayTitle.textContent = "Nothing shared yet.";
-          displayBody.textContent = "";
-        }
-      } catch (err) {
-        console.error("Error loading poem:", err);
-        displayTitle.textContent = "Failed to load poem.";
-      }
-    }
-
-    document.getElementById("poemForm").addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const title = titleInput.value.trim();
       const body = bodyInput.value.trim();
-      const imageUrl = displayImage.src || ""; // No image upload yet
 
       try {
-        await setDoc(poemRef, { title, body, imageUrl });
-        await loadPoem();
-        alert("Poem saved! ✨");
+        await addDoc(collection(db, "poems"), {
+          title,
+          body,
+          timestamp: serverTimestamp()
+        });
+
+        titleInput.value = "";
+        bodyInput.value = "";
+        loadPoems(); // reload list
       } catch (err) {
-        console.error("Error saving poem:", err);
-        alert("Something went wrong while saving.");
+        alert("Failed to save poem.");
+        console.error(err);
       }
     });
 
-    loadPoem();
+    const loadPoems = async () => {
+      poemList.innerHTML = "";
+      const q = query(collection(db, "poems"), orderBy("timestamp", "desc"));
+      const snapshot = await getDocs(q);
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "poem-entry";
+        div.innerHTML = `
+          <div class="poem-title">${data.title}</div>
+          <div class="poem-body">${data.body.slice(0, 100)}...</div>
+        `;
+        div.addEventListener("click", () => {
+          window.location.href = `poem_view.html?id=${doc.id}`;
+        });
+        poemList.appendChild(div);
+      });
+    };
+
+    loadPoems();
   </script>
 </body>
 </html>
