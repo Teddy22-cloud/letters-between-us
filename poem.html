@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Shared Poems</title>
   <style>
     body {
@@ -45,10 +45,6 @@
       min-height: 150px;
     }
 
-    input[type="file"] {
-      font-size: 1rem;
-    }
-
     button {
       padding: 0.8rem 1.5rem;
       font-size: 1rem;
@@ -85,21 +81,85 @@
 <body>
   <div class="container">
     <h1>Shared Poems & Images</h1>
-    <form>
-      <input type="text" placeholder="Poem Title" required>
-      <textarea placeholder="Write your poem here..." required></textarea>
-      <input type="file" accept="image/*">
-      <button type="submit">Post</button>
+    <form id="poemForm">
+      <input type="text" id="poemTitle" placeholder="Poem Title" required />
+      <textarea id="poemBody" placeholder="Write your poem here..." required></textarea>
+      <button type="submit">Save</button>
     </form>
 
     <div class="poem-entry">
-      <div class="poem-title">First Rain</div>
-      <div>Like the first drop on sunburnt ground,
-      Your smile came soft, your voice a sound
-      That brought the clouds and peace and light —
-      You made the storm feel warm and right.</div>
-      <img src="poem_sample.jpg" alt="Sketch or memory" class="poem-image">
+      <div class="poem-title" id="displayTitle">Loading...</div>
+      <div id="displayBody">Please wait...</div>
+      <img id="displayImage" class="poem-image" style="display: none;" />
     </div>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
+      authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
+      projectId: "lettersbetweenus-5a1f3",
+      storageBucket: "lettersbetweenus-5a1f3.appspot.com",
+      messagingSenderId: "756033556177",
+      appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const poemRef = doc(db, "poem", "shared");
+
+    const titleInput = document.getElementById("poemTitle");
+    const bodyInput = document.getElementById("poemBody");
+    const displayTitle = document.getElementById("displayTitle");
+    const displayBody = document.getElementById("displayBody");
+    const displayImage = document.getElementById("displayImage");
+
+    async function loadPoem() {
+      try {
+        const snap = await getDoc(poemRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          titleInput.value = data.title || "";
+          bodyInput.value = data.body || "";
+
+          displayTitle.textContent = data.title || "(No title)";
+          displayBody.textContent = data.body || "";
+          if (data.imageUrl) {
+            displayImage.src = data.imageUrl;
+            displayImage.style.display = "block";
+          } else {
+            displayImage.style.display = "none";
+          }
+        } else {
+          displayTitle.textContent = "Nothing shared yet.";
+          displayBody.textContent = "";
+        }
+      } catch (err) {
+        console.error("Error loading poem:", err);
+        displayTitle.textContent = "Failed to load poem.";
+      }
+    }
+
+    document.getElementById("poemForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = titleInput.value.trim();
+      const body = bodyInput.value.trim();
+      const imageUrl = displayImage.src || ""; // No image upload yet
+
+      try {
+        await setDoc(poemRef, { title, body, imageUrl });
+        await loadPoem();
+        alert("Poem saved! ✨");
+      } catch (err) {
+        console.error("Error saving poem:", err);
+        alert("Something went wrong while saving.");
+      }
+    });
+
+    loadPoem();
+  </script>
 </body>
 </html>
