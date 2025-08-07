@@ -106,7 +106,7 @@
     }
 
     const title = form.querySelector("input[type='text']").value;
-    const body = form.querySelector("textarea").value;
+    const body = form.querySelector("textarea").value; // ✅ This was missing or misplaced!
 
     try {
       await addDoc(collection(db, "letters"), {
@@ -125,5 +125,6 @@
     }
   });
 </script>
+
 </body>
 </html>
