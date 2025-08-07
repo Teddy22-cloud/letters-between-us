@@ -92,30 +92,31 @@
     e.preventDefault();
 
     const passcode = localStorage.getItem("passcode");
+    if (!passcode) {
+      alert("You must enter through the home page first (index.html) to set your identity.");
+      return;
+    }
+
     const sender = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
-    const recipient = sender === "me" ? "her" : "me";
+    const recipient = passcode === "sunlight" ? "her" : passcode === "moonlight" ? "me" : null;
 
     if (!sender || !recipient) {
-      alert("Login session expired. Please log in again.");
-      window.location.href = "index.html";
+      alert("Invalid passcode detected. Please restart from the main page.");
       return;
     }
 
     const title = form.querySelector("input[type='text']").value;
-    const message = form.querySelector("textarea").value;
+    const body = form.querySelector("textarea").value;
 
     try {
-      const passcode = localStorage.getItem("passcode");
-const sender = passcode === "sunlight" ? "me" : "her";
-const recipient = passcode === "sunlight" ? "her" : "me";
+      await addDoc(collection(db, "letters"), {
+        title,
+        body,
+        sender,
+        recipient,
+        timestamp: serverTimestamp()
+      });
 
-await addDoc(collection(db, "letters"), {
-  title,
-  body,
-  sender,
-  recipient,
-  timestamp: serverTimestamp()
-});
       alert("💌 Letter sent!");
       form.reset();
     } catch (err) {
