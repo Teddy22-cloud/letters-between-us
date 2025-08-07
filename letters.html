@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,7 +86,7 @@
     const db = getFirestore(app);
 
     const passcode = localStorage.getItem("passcode");
-    const recipient = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
+    const recipient = passcode === "sunlight" ? "her" : passcode === "moonlight" ? "me" : null;
 
     if (!recipient) {
       alert("No passcode found. Please log in again.");
@@ -94,32 +95,37 @@
       const inbox = document.getElementById("inbox");
 
       const fetchLetters = async () => {
-        const q = query(
-          collection(db, "letters"),
-          where("recipient", "==", recipient),
-          orderBy("timestamp", "desc")
-        );
+        try {
+          const q = query(
+            collection(db, "letters"),
+            where("recipient", "==", recipient),
+            orderBy("timestamp", "desc")
+          );
 
-        const querySnapshot = await getDocs(q);
+          const querySnapshot = await getDocs(q);
 
-        if (querySnapshot.empty) {
-          inbox.innerHTML = "<p style='text-align:center;'>No letters yet 💌</p>";
-          return;
+          if (querySnapshot.empty) {
+            inbox.innerHTML = "<p style='text-align:center;'>No letters yet 💌</p>";
+            return;
+          }
+
+          querySnapshot.forEach(doc => {
+            const letter = doc.data();
+            const date = letter.timestamp?.toDate().toLocaleString() || "(no date)";
+
+            const el = document.createElement("div");
+            el.className = "letter-preview";
+            el.innerHTML = `
+              <div class="letter-title">${letter.title}</div>
+              <div class="preview-text">${letter.body}</div>
+              <div class="timestamp">Sent on ${date}</div>
+            `;
+            inbox.appendChild(el);
+          });
+        } catch (err) {
+          console.error("Error fetching letters:", err);
+          inbox.innerHTML = "<p style='text-align:center; color: red;'>Failed to load letters. Check console for details.</p>";
         }
-
-        querySnapshot.forEach(doc => {
-          const letter = doc.data();
-          const date = letter.timestamp?.toDate().toLocaleString() || "(no date)";
-
-          const el = document.createElement("div");
-          el.className = "letter-preview";
-          el.innerHTML = `
-            <div class="letter-title">${letter.title}</div>
-            <div class="preview-text">${letter.body}</div>
-            <div class="timestamp">Sent on ${date}</div>
-          `;
-          inbox.appendChild(el);
-        });
       };
 
       fetchLetters();
