@@ -9,107 +9,127 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background-color: #fff;
+      background-color: #fefefe;
       color: #1d1d1f;
     }
 
     nav {
       background-color: #1d1d1f;
       color: white;
-      padding: 1rem;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 10;
     }
 
     .nav-container {
+      max-width: 1000px;
+      margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      max-width: 900px;
-      margin: 0 auto;
     }
 
     .nav-logo {
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
     }
 
-    .nav-menu {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .nav-item {
-      position: relative;
+    .menu-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
       cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .menu-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .dropdown-content {
       display: none;
       position: absolute;
-      background-color: white;
-      color: #1d1d1f;
-      top: 2rem;
       right: 0;
-      min-width: 150px;
-      border-radius: 6px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      z-index: 1000;
-      font-size: 0.95rem;
+      top: 3.2rem;
+      background-color: #fff;
+      color: #1d1d1f;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+      min-width: 180px;
+      overflow: hidden;
+      animation: dropdownFade 0.2s ease-out;
     }
 
     .dropdown-content a {
       display: block;
-      padding: 0.75rem 1rem;
+      padding: 0.8rem 1rem;
       text-decoration: none;
-      color: inherit;
+      color: #1d1d1f;
+      font-size: 0.95rem;
+      transition: background 0.2s ease;
     }
 
     .dropdown-content a:hover {
-      background-color: #f0f0f0;
+      background-color: #f5f5f5;
     }
 
-    .dropdown:hover .dropdown-content {
-      display: block;
+    @keyframes dropdownFade {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .container {
-      max-width: 700px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      max-width: 760px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
     }
 
     h1 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
     }
 
     .timestamp {
       font-size: 0.9rem;
       color: #888;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
 
     .poem-content {
       font-size: 1.1rem;
-      line-height: 1.7;
+      line-height: 1.8;
       white-space: pre-wrap;
       font-family: 'Georgia', serif;
+      color: #333;
     }
 
     a.back {
       display: inline-block;
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       text-decoration: none;
       color: #0066cc;
       font-size: 0.95rem;
+    }
+
+    .nav-menu {
+      position: relative;
     }
   </style>
 </head>
 <body>
   <nav>
-  <div class="nav-container">
-    <div class="nav-logo">Letters Between Us</div>
-    <div class="nav-menu">
-      <div class="nav-item">
+    <div class="nav-container">
+      <div class="nav-logo">Letters Between Us</div>
+      <div class="nav-menu">
         <button class="menu-btn" onclick="toggleDropdown()">Menu ▾</button>
         <div class="dropdown-content" id="dropdown">
           <a id="dashboardLink" href="#">Dashboard</a>
@@ -119,114 +139,74 @@
         </div>
       </div>
     </div>
+  </nav>
+
+  <div class="container">
+    <h1 id="poemTitle">Loading...</h1>
+    <div class="timestamp" id="poemDate"></div>
+    <div class="poem-content" id="poemBody"></div>
+    <a href="poem.html" class="back">← Back to Shared Poems</a>
   </div>
-</nav>
 
-<style>
-  nav {
-    background-color: #1d1d1f;
-    color: white;
-    padding: 1rem 1.5rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    position: relative;
-    z-index: 10;
-  }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  .nav-container {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+    const firebaseConfig = {
+      apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
+      authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
+      projectId: "lettersbetweenus-5a1f3",
+      storageBucket: "lettersbetweenus-5a1f3.appspot.com",
+      messagingSenderId: "756033556177",
+      appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
+    };
 
-  .nav-logo {
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  .nav-menu {
-    position: relative;
-  }
+    const id = new URLSearchParams(window.location.search).get("id");
 
-  .menu-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    transition: background 0.2s ease;
-  }
+    if (!id) {
+      document.getElementById("poemTitle").textContent = "Poem not found.";
+    } else {
+      const docRef = doc(db, "poems", id);
+      const docSnap = await getDoc(docRef);
 
-  .menu-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 2.8rem;
-    background-color: #fff;
-    color: #1d1d1f;
-    border-radius: 10px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-    min-width: 180px;
-    overflow: hidden;
-    animation: dropdownFade 0.2s ease-out;
-  }
-
-  .dropdown-content a {
-    display: block;
-    padding: 0.8rem 1rem;
-    text-decoration: none;
-    color: #1d1d1f;
-    font-size: 0.95rem;
-    transition: background 0.2s ease;
-  }
-
-  .dropdown-content a:hover {
-    background-color: #f5f5f5;
-  }
-
-  @keyframes dropdownFade {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-</style>
-
-<script>
-  // Toggle dropdown on click
-  function toggleDropdown() {
-    const dropdown = document.getElementById("dropdown");
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-  }
-
-  // Hide dropdown when clicking outside
-  window.addEventListener("click", function (e) {
-    const btn = document.querySelector(".menu-btn");
-    const dropdown = document.getElementById("dropdown");
-    if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.style.display = "none";
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById("poemTitle").textContent = data.title;
+        document.getElementById("poemBody").innerHTML = data.body.replace(/\n/g, "<br>");
+        document.getElementById("poemDate").textContent = "Posted on " + (data.timestamp?.toDate().toLocaleString() || "(no date)");
+      } else {
+        document.getElementById("poemTitle").textContent = "Poem not found.";
+      }
     }
-  });
+  </script>
 
-  // Update dashboard link
-  const passcode = localStorage.getItem("passcode");
-  const dashboardLink = document.getElementById("dashboardLink");
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("dropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
 
-  if (passcode === "sunlight") {
-    dashboardLink.href = "dashboard_user.html";
-  } else if (passcode === "moonlight") {
-    dashboardLink.href = "dashboard_partner.html";
-  } else {
-    dashboardLink.href = "index.html";
-  }
-</script>
+    window.addEventListener("click", function (e) {
+      const btn = document.querySelector(".menu-btn");
+      const dropdown = document.getElementById("dropdown");
+      if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
 
+    const passcode = localStorage.getItem("passcode");
+    const dashboardLink = document.getElementById("dashboardLink");
+
+    if (passcode === "sunlight") {
+      dashboardLink.href = "dashboard_user.html";
+    } else if (passcode === "moonlight") {
+      dashboardLink.href = "dashboard_partner.html";
+    } else {
+      dashboardLink.href = "index.html";
+    }
+  </script>
 </body>
 </html>
