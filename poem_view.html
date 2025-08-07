@@ -80,7 +80,7 @@
       if (docSnap.exists()) {
         const data = docSnap.data();
         document.getElementById("poemTitle").textContent = data.title;
-        document.getElementById("poemBody").innerHTML = poem.body.replace(/\n/g, "<br>");
+        document.getElementById("poemBody").innerHTML = data.body.replace(/\n/g, "<br>");
         document.getElementById("poemDate").textContent = "Posted on " + (data.timestamp?.toDate().toLocaleString() || "(no date)");
       } else {
         document.getElementById("poemTitle").textContent = "Poem not found.";
