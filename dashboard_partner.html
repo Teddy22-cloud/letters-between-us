@@ -99,15 +99,14 @@
     h1 {
       font-size: 2rem;
       margin-top: 6rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
       text-align: center;
     }
 
     .counter {
       font-size: 0.95rem;
-      color: #555;
-      margin-bottom: 2rem;
-      text-align: center;
+      margin-bottom: 2.5rem;
+      color: #444;
     }
 
     .dashboard-buttons {
@@ -164,11 +163,11 @@
   </nav>
 
   <h1>Welcome back, love</h1>
-  <div class="counter" id="counterText">Loading letter stats...</div>
+  <div class="counter" id="counterText">Loading...</div>
 
   <div class="dashboard-buttons">
     <a href="letters.html" class="btn">
-      <span class="badge" id="letterCountBadge">0</span> Love Letters
+      <span class="badge" id="badgeCount">0</span> Love Letters
     </a>
     <a href="drop.html" class="btn">Drop a Letter</a>
     <a href="poem.html" class="btn">Poem</a>
@@ -191,40 +190,33 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const badgeEl = document.getElementById("letterCountBadge");
+    const badgeEl = document.getElementById("badgeCount");
     const counterTextEl = document.getElementById("counterText");
+
     const passcode = localStorage.getItem("passcode");
-    const dashboardLink = document.getElementById("dashboardLink");
 
-    if (passcode === "sunlight") {
-      dashboardLink.href = "dashboard_user.html";
-    } else if (passcode === "moonlight") {
-      dashboardLink.href = "dashboard_partner.html";
-    } else {
-      dashboardLink.href = "index.html";
-    }
+    if (passcode === "moonlight" || passcode === "sunlight") {
+      const isMoonlight = passcode === "moonlight";
+      const myKey = isMoonlight ? "her" : "me";
+      const theirKey = isMoonlight ? "me" : "her";
 
-    const recipientKey = passcode === "moonlight" ? "her" : passcode === "sunlight" ? "me" : null;
-
-    if (recipientKey) {
       const fetchCounts = async () => {
         const snap = await getDocs(collection(db, "letters"));
         let total = 0;
-        let forMe = 0;
-        let forThem = 0;
+        let received = 0;
+        let sent = 0;
 
         snap.forEach(doc => {
-          total++;
           const data = doc.data();
-          if (data.recipient === recipientKey) {
-            forMe++;
-          } else {
-            forThem++;
-          }
+          if (!data.recipient || !data.sender) return;
+
+          total++;
+          if (data.recipient === myKey) received++;
+          if (data.sender === myKey) sent++;
         });
 
-        badgeEl.textContent = forMe;
-        counterTextEl.textContent = `💌 Total Letters: ${total} | You received: ${forMe} | They received: ${forThem}`;
+        badgeEl.textContent = received;
+        counterTextEl.textContent = `💌 Total Letters: ${total} | You received: ${received} | You sent: ${sent}`;
       };
 
       fetchCounts();
@@ -246,6 +238,17 @@
         dropdown.style.display = "none";
       }
     });
+
+    const passcode = localStorage.getItem("passcode");
+    const dashboardLink = document.getElementById("dashboardLink");
+
+    if (passcode === "sunlight") {
+      dashboardLink.href = "dashboard_user.html";
+    } else if (passcode === "moonlight") {
+      dashboardLink.href = "dashboard_partner.html";
+    } else {
+      dashboardLink.href = "index.html";
+    }
   </script>
 </body>
 </html>
