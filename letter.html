@@ -6,20 +6,28 @@
   <title>Your Letter</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
       margin: 0;
       padding: 2rem;
-      background-color: #f9f9fb;
-      color: #1d1d1f;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: linear-gradient(to bottom, #ffa07a 0%, #ff6b6b 60%, #1e1e2f 100%);
+      color: #fff3ec;
+      min-height: 100vh;
+      background-size: cover;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
     }
 
     .container {
       max-width: 600px;
-      margin: auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      padding: 2.5rem;
+      color: #fffefc;
+      width: 100%;
     }
 
     h1 {
@@ -29,13 +37,13 @@
 
     .timestamp {
       font-size: 0.9rem;
-      color: #888;
+      color: #ffe9d9;
       margin-bottom: 2rem;
     }
 
     .content {
       font-size: 1.1rem;
-      line-height: 1.6;
+      line-height: 1.7;
       white-space: pre-wrap;
     }
 
@@ -48,33 +56,34 @@
 
     .back-link {
       text-decoration: none;
-      color: #0066cc;
+      color: #ffddcc;
       font-size: 0.95rem;
     }
 
     .reply-btn {
       padding: 0.5rem 1rem;
-      background-color: #1d1d1f;
+      background-color: #ff6b6b;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 0.95rem;
+      transition: background 0.2s ease;
     }
 
     .reply-btn:hover {
-      background-color: #333;
+      background-color: #e14a4a;
     }
 
     .reaction-box {
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       text-align: center;
     }
 
     .reaction-box span {
       cursor: pointer;
-      font-size: 1.5rem;
-      margin: 0 0.7rem;
+      font-size: 1.8rem;
+      margin: 0 0.8rem;
       transition: transform 0.2s ease;
     }
 
@@ -83,13 +92,13 @@
     }
 
     .reaction-box .selected {
-      transform: scale(1.3);
+      transform: scale(1.4);
     }
 
     .reaction-label {
       font-size: 0.95rem;
-      color: #666;
-      margin-top: 0.5rem;
+      color: #ffd9c7;
+      margin-top: 0.75rem;
     }
   </style>
 </head>
@@ -115,100 +124,99 @@
   </div>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
-    authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
-    projectId: "lettersbetweenus-5a1f3",
-    storageBucket: "lettersbetweenus-5a1f3.appspot.com",
-    messagingSenderId: "756033556177",
-    appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
+      authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
+      projectId: "lettersbetweenus-5a1f3",
+      storageBucket: "lettersbetweenus-5a1f3.appspot.com",
+      messagingSenderId: "756033556177",
+      appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  const id = new URLSearchParams(window.location.search).get("id");
-  const passcode = localStorage.getItem("passcode");
+    const id = new URLSearchParams(window.location.search).get("id");
+    const passcode = localStorage.getItem("passcode");
 
-  const userKey = passcode === "sunlight" ? "sunlight" : passcode === "moonlight" ? "moonlight" : null;
-  const partnerKey = passcode === "sunlight" ? "moonlight" : passcode === "moonlight" ? "sunlight" : null;
+    const userKey = passcode === "sunlight" ? "sunlight" : passcode === "moonlight" ? "moonlight" : null;
+    const partnerKey = passcode === "sunlight" ? "moonlight" : passcode === "moonlight" ? "sunlight" : null;
 
-  const titleEl = document.getElementById("letterTitle");
-  const timeEl = document.getElementById("letterTime");
-  const bodyEl = document.getElementById("letterBody");
-  const labelEl = document.getElementById("reactionLabel");
-  const reactionSpans = document.querySelectorAll("[data-reaction]");
+    const titleEl = document.getElementById("letterTitle");
+    const timeEl = document.getElementById("letterTime");
+    const bodyEl = document.getElementById("letterBody");
+    const labelEl = document.getElementById("reactionLabel");
+    const reactionSpans = document.querySelectorAll("[data-reaction]");
 
-  if (!id || !userKey) {
-    titleEl.textContent = "Letter not found.";
-  } else {
-    const docRef = doc(db, "letters", id);
-    const snap = await getDoc(docRef);
-
-    if (!snap.exists()) {
+    if (!id || !userKey) {
       titleEl.textContent = "Letter not found.";
     } else {
-      const letter = snap.data();
-      titleEl.textContent = letter.title;
-      timeEl.textContent = "Sent on " + (letter.timestamp?.toDate().toLocaleString() || "(no date)");
-      bodyEl.textContent = letter.body;
+      const docRef = doc(db, "letters", id);
+      const snap = await getDoc(docRef);
 
-      const userReaction = letter.reactions?.[userKey];
-      const partnerReaction = letter.reactions?.[partnerKey];
+      if (!snap.exists()) {
+        titleEl.textContent = "Letter not found.";
+      } else {
+        const letter = snap.data();
+        titleEl.textContent = letter.title;
+        timeEl.textContent = "Sent on " + (letter.timestamp?.toDate().toLocaleString() || "(no date)");
+        bodyEl.textContent = letter.body;
 
-      const renderReactions = () => {
-        let display = "";
+        const userReaction = letter.reactions?.[userKey];
+        const partnerReaction = letter.reactions?.[partnerKey];
 
-        if (userReaction) {
-          display += `Your reaction: ${userReaction}`;
-        }
+        const renderReactions = () => {
+          let display = "";
 
-        if (partnerReaction) {
-          if (display) display += "  •  ";
-          display += `Their reaction: ${partnerReaction}`;
-        }
+          if (userReaction) {
+            display += `Your reaction: ${userReaction}`;
+          }
 
-        labelEl.textContent = display || "React to this letter";
-      };
+          if (partnerReaction) {
+            if (display) display += "  •  ";
+            display += `Their reaction: ${partnerReaction}`;
+          }
 
-      renderReactions();
+          labelEl.textContent = display || "React to this letter";
+        };
 
-      reactionSpans.forEach(span => {
-        if (span.dataset.reaction === userReaction) {
-          span.classList.add("selected");
-        }
+        renderReactions();
 
-        span.addEventListener("click", async () => {
-          const chosen = span.dataset.reaction;
+        reactionSpans.forEach(span => {
+          if (span.dataset.reaction === userReaction) {
+            span.classList.add("selected");
+          }
 
-          // Update UI
-          reactionSpans.forEach(s => s.classList.remove("selected"));
-          span.classList.add("selected");
+          span.addEventListener("click", async () => {
+            const chosen = span.dataset.reaction;
 
-          // Update Firestore
-          await updateDoc(docRef, {
-            [`reactions.${userKey}`]: chosen
+            // Update UI
+            reactionSpans.forEach(s => s.classList.remove("selected"));
+            span.classList.add("selected");
+
+            // Update Firestore
+            await updateDoc(docRef, {
+              [`reactions.${userKey}`]: chosen
+            });
+
+            // Update local variable + re-render
+            letter.reactions = {
+              ...letter.reactions,
+              [userKey]: chosen
+            };
+            renderReactions();
           });
-
-          // Update local variable + re-render
-          letter.reactions = {
-            ...letter.reactions,
-            [userKey]: chosen
-          };
-          renderReactions();
         });
-      });
 
-      document.getElementById("replyBtn").addEventListener("click", () => {
-        const subject = encodeURIComponent("RE: " + letter.title);
-        window.location.href = `drop.html?title=${subject}`;
-      });
+        document.getElementById("replyBtn").addEventListener("click", () => {
+          const subject = encodeURIComponent("RE: " + letter.title);
+          window.location.href = `drop.html?title=${subject}`;
+        });
+      }
     }
-  }
-</script>
-
+  </script>
 </body>
 </html>
