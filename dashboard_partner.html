@@ -195,11 +195,7 @@
 
     const passcode = localStorage.getItem("passcode");
 
-    if (passcode === "moonlight" || passcode === "sunlight") {
-      const isMoonlight = passcode === "moonlight";
-      const myKey = isMoonlight ? "her" : "me";
-      const theirKey = isMoonlight ? "me" : "her";
-
+    if (passcode === "moonlight") {
       const fetchCounts = async () => {
         const snap = await getDocs(collection(db, "letters"));
         let total = 0;
@@ -211,8 +207,8 @@
           if (!data.recipient || !data.sender) return;
 
           total++;
-          if (data.recipient === myKey) received++;
-          if (data.sender === myKey) sent++;
+          if (data.recipient === "her") received++;
+          if (data.sender === "her") sent++;
         });
 
         badgeEl.textContent = received;
