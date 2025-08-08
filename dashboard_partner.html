@@ -99,6 +99,13 @@
     h1 {
       font-size: 2rem;
       margin-top: 6rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .counter {
+      font-size: 0.95rem;
+      color: #555;
       margin-bottom: 2rem;
       text-align: center;
     }
@@ -157,15 +164,74 @@
   </nav>
 
   <h1>Welcome back, love</h1>
+  <div class="counter" id="counterText">Loading letter stats...</div>
 
   <div class="dashboard-buttons">
     <a href="letters.html" class="btn">
-      <span class="badge">1</span> Love Letters
+      <span class="badge" id="letterCountBadge">0</span> Love Letters
     </a>
     <a href="drop.html" class="btn">Drop a Letter</a>
     <a href="poem.html" class="btn">Poem</a>
     <a href="about.html" class="btn">About</a>
   </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
+      authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
+      projectId: "lettersbetweenus-5a1f3",
+      storageBucket: "lettersbetweenus-5a1f3.appspot.com",
+      messagingSenderId: "756033556177",
+      appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const badgeEl = document.getElementById("letterCountBadge");
+    const counterTextEl = document.getElementById("counterText");
+    const passcode = localStorage.getItem("passcode");
+    const dashboardLink = document.getElementById("dashboardLink");
+
+    if (passcode === "sunlight") {
+      dashboardLink.href = "dashboard_user.html";
+    } else if (passcode === "moonlight") {
+      dashboardLink.href = "dashboard_partner.html";
+    } else {
+      dashboardLink.href = "index.html";
+    }
+
+    const recipientKey = passcode === "moonlight" ? "her" : passcode === "sunlight" ? "me" : null;
+
+    if (recipientKey) {
+      const fetchCounts = async () => {
+        const snap = await getDocs(collection(db, "letters"));
+        let total = 0;
+        let forMe = 0;
+        let forThem = 0;
+
+        snap.forEach(doc => {
+          total++;
+          const data = doc.data();
+          if (data.recipient === recipientKey) {
+            forMe++;
+          } else {
+            forThem++;
+          }
+        });
+
+        badgeEl.textContent = forMe;
+        counterTextEl.textContent = `💌 Total Letters: ${total} | You received: ${forMe} | They received: ${forThem}`;
+      };
+
+      fetchCounts();
+    } else {
+      counterTextEl.textContent = "Login error. Please return to the home page.";
+    }
+  </script>
 
   <script>
     function toggleDropdown() {
@@ -180,17 +246,6 @@
         dropdown.style.display = "none";
       }
     });
-
-    const passcode = localStorage.getItem("passcode");
-    const dashboardLink = document.getElementById("dashboardLink");
-
-    if (passcode === "sunlight") {
-      dashboardLink.href = "dashboard_user.html";
-    } else if (passcode === "moonlight") {
-      dashboardLink.href = "dashboard_partner.html";
-    } else {
-      dashboardLink.href = "index.html";
-    }
   </script>
 </body>
 </html>
