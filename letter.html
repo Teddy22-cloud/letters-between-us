@@ -115,78 +115,100 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
-      authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
-      projectId: "lettersbetweenus-5a1f3",
-      storageBucket: "lettersbetweenus-5a1f3.appspot.com",
-      messagingSenderId: "756033556177",
-      appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyAJNvDmoB2vbejV13nxJoesdsFApwPal5A",
+    authDomain: "lettersbetweenus-5a1f3.firebaseapp.com",
+    projectId: "lettersbetweenus-5a1f3",
+    storageBucket: "lettersbetweenus-5a1f3.appspot.com",
+    messagingSenderId: "756033556177",
+    appId: "1:756033556177:web:846c1ccf21ee4a6aecbff0"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    const id = new URLSearchParams(window.location.search).get("id");
-    const passcode = localStorage.getItem("passcode");
-    const senderKey = passcode === "sunlight" ? "sunlight" : passcode === "moonlight" ? "moonlight" : null;
+  const id = new URLSearchParams(window.location.search).get("id");
+  const passcode = localStorage.getItem("passcode");
 
-    const titleEl = document.getElementById("letterTitle");
-    const timeEl = document.getElementById("letterTime");
-    const bodyEl = document.getElementById("letterBody");
-    const labelEl = document.getElementById("reactionLabel");
-    const reactionSpans = document.querySelectorAll("[data-reaction]");
+  const userKey = passcode === "sunlight" ? "sunlight" : passcode === "moonlight" ? "moonlight" : null;
+  const partnerKey = passcode === "sunlight" ? "moonlight" : passcode === "moonlight" ? "sunlight" : null;
 
-    if (!id || !senderKey) {
+  const titleEl = document.getElementById("letterTitle");
+  const timeEl = document.getElementById("letterTime");
+  const bodyEl = document.getElementById("letterBody");
+  const labelEl = document.getElementById("reactionLabel");
+  const reactionSpans = document.querySelectorAll("[data-reaction]");
+
+  if (!id || !userKey) {
+    titleEl.textContent = "Letter not found.";
+  } else {
+    const docRef = doc(db, "letters", id);
+    const snap = await getDoc(docRef);
+
+    if (!snap.exists()) {
       titleEl.textContent = "Letter not found.";
     } else {
-      const docRef = doc(db, "letters", id);
-      const snap = await getDoc(docRef);
+      const letter = snap.data();
+      titleEl.textContent = letter.title;
+      timeEl.textContent = "Sent on " + (letter.timestamp?.toDate().toLocaleString() || "(no date)");
+      bodyEl.textContent = letter.body;
 
-      if (!snap.exists()) {
-        titleEl.textContent = "Letter not found.";
-      } else {
-        const letter = snap.data();
-        titleEl.textContent = letter.title;
-        timeEl.textContent = "Sent on " + (letter.timestamp?.toDate().toLocaleString() || "(no date)");
-        bodyEl.textContent = letter.body;
+      const userReaction = letter.reactions?.[userKey];
+      const partnerReaction = letter.reactions?.[partnerKey];
 
-        const currentReaction = letter.reactions?.[senderKey];
+      const renderReactions = () => {
+        let display = "";
 
-        if (currentReaction) {
-          labelEl.textContent = `You reacted: ${currentReaction}`;
-          reactionSpans.forEach(span => {
-            if (span.dataset.reaction === currentReaction) {
-              span.classList.add("selected");
-            }
-          });
+        if (userReaction) {
+          display += `Your reaction: ${userReaction}`;
         }
 
-        reactionSpans.forEach(span => {
-          span.addEventListener("click", async () => {
-            const chosen = span.dataset.reaction;
+        if (partnerReaction) {
+          if (display) display += "  •  ";
+          display += `Their reaction: ${partnerReaction}`;
+        }
 
-            // Optimistically update UI
-            labelEl.textContent = `You reacted: ${chosen}`;
-            reactionSpans.forEach(s => s.classList.remove("selected"));
-            span.classList.add("selected");
+        labelEl.textContent = display || "React to this letter";
+      };
 
-            // Update Firestore
-            await updateDoc(docRef, {
-              [`reactions.${senderKey}`]: chosen
-            });
+      renderReactions();
+
+      reactionSpans.forEach(span => {
+        if (span.dataset.reaction === userReaction) {
+          span.classList.add("selected");
+        }
+
+        span.addEventListener("click", async () => {
+          const chosen = span.dataset.reaction;
+
+          // Update UI
+          reactionSpans.forEach(s => s.classList.remove("selected"));
+          span.classList.add("selected");
+
+          // Update Firestore
+          await updateDoc(docRef, {
+            [`reactions.${userKey}`]: chosen
           });
-        });
 
-        document.getElementById("replyBtn").addEventListener("click", () => {
-          const subject = encodeURIComponent("RE: " + letter.title);
-          window.location.href = `drop.html?title=${subject}`;
+          // Update local variable + re-render
+          letter.reactions = {
+            ...letter.reactions,
+            [userKey]: chosen
+          };
+          renderReactions();
         });
-      }
+      });
+
+      document.getElementById("replyBtn").addEventListener("click", () => {
+        const subject = encodeURIComponent("RE: " + letter.title);
+        window.location.href = `drop.html?title=${subject}`;
+      });
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
