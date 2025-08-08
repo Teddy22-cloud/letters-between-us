@@ -16,7 +16,7 @@
     body.moon {
       background: url("sunset.jpg") no-repeat center center fixed;
       background-size: cover;
-      --bg-color: rgba(0, 0, 0, 0); /* fully transparent to show bg */
+      --bg-color: rgba(0, 0, 0, 0);
       --text-color: #fff;
       --card-bg: rgba(255, 255, 255, 0.15);
       --card-shadow: rgba(0, 0, 0, 0.2);
@@ -108,13 +108,13 @@
     const db = getFirestore(app);
 
     const passcode = localStorage.getItem("passcode");
-    const recipient = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
+    const myRecipientKey = passcode === "sunlight" ? "her" : passcode === "moonlight" ? "me" : null;
 
     if (passcode === "moonlight") {
       document.body.classList.add("moon");
     }
 
-    if (!recipient) {
+    if (!myRecipientKey) {
       alert("No passcode found. Please log in again.");
       window.location.href = "index.html";
     } else {
@@ -125,7 +125,7 @@
       const fetchLetters = async () => {
         const q = query(
           collection(db, "letters"),
-          where("recipient", "==", recipient),
+          where("recipient", "==", myRecipientKey),
           orderBy("timestamp", "desc")
         );
 
