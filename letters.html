@@ -60,15 +60,9 @@
       backdrop-filter: blur(6px);
     }
 
-    .letter-preview:hover {
-      background-color: var(--hover-bg);
-    }
+    .letter-preview:hover { background-color: var(--hover-bg); }
 
-    .letter-title {
-      font-weight: bold;
-      margin-bottom: 0.25rem;
-      font-size: 1.1rem;
-    }
+    .letter-title { font-weight: bold; margin-bottom: 0.25rem; font-size: 1.1rem; }
 
     .preview-text {
       font-size: 0.95rem;
@@ -108,24 +102,22 @@
     const db = getFirestore(app);
 
     const passcode = localStorage.getItem("passcode");
-    const myRecipientKey = passcode === "sunlight" ? "her" : passcode === "moonlight" ? "me" : null;
 
-    if (passcode === "moonlight") {
-      document.body.classList.add("moon");
-    }
+    // Normalize identity & theme
+    const identityKey = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
+    if (passcode === "moonlight") document.body.classList.add("moon");
 
-    if (!myRecipientKey) {
+    if (!identityKey) {
       alert("No passcode found. Please log in again.");
       window.location.href = "index.html";
     } else {
       const inbox = document.getElementById("inbox");
-
       localStorage.setItem("lastInboxOpened", Date.now().toString());
 
       const fetchLetters = async () => {
         const q = query(
           collection(db, "letters"),
-          where("recipient", "==", myRecipientKey),
+          where("recipient", "==", identityKey), // show what *I* received
           orderBy("timestamp", "desc")
         );
 
