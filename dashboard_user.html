@@ -6,144 +6,42 @@
   <title>Dashboard – Letters Between Us</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background-color: #f9f9fb;
-      color: #1d1d1f;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      padding: 3rem 1rem;
+      background-color: #f9f9fb; color: #1d1d1f;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      min-height: 100vh; padding: 3rem 1rem;
     }
-
     nav {
-      background-color: #1d1d1f;
-      color: white;
-      padding: 1rem 1.5rem;
-      width: 100%;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 10;
+      background-color: #1d1d1f; color: white; padding: 1rem 1.5rem; width: 100%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: fixed; top: 0; left: 0; z-index: 10;
     }
-
-    .nav-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .nav-logo {
-      font-weight: bold;
-      font-size: 1.3rem;
-    }
-
-    .nav-menu {
-      position: relative;
-    }
-
+    .nav-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .nav-logo { font-weight: bold; font-size: 1.3rem; }
+    .nav-menu { position: relative; }
     .menu-btn {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      transition: background 0.2s ease;
+      background: none; border: none; color: white; font-size: 1rem; font-weight: bold; cursor: pointer;
+      padding: 0.5rem 1rem; border-radius: 8px; transition: background 0.2s ease;
     }
-
-    .menu-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
+    .menu-btn:hover { background: rgba(255,255,255,0.1); }
     .dropdown-content {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 3.2rem;
-      background-color: #fff;
-      color: #1d1d1f;
-      border-radius: 10px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-      min-width: 180px;
-      overflow: hidden;
-      animation: dropdownFade 0.2s ease-out;
+      display: none; position: absolute; right: 0; top: 3.2rem; background-color: #fff; color: #1d1d1f;
+      border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); min-width: 180px; overflow: hidden; animation: dropdownFade 0.2s ease-out;
     }
+    .dropdown-content a { display: block; padding: 0.8rem 1rem; text-decoration: none; color: #1d1d1f; font-size: 0.95rem; transition: background 0.2s ease; }
+    .dropdown-content a:hover { background-color: #f5f5f5; }
+    @keyframes dropdownFade { from {opacity:0; transform: translateY(-5px);} to {opacity:1; transform: translateY(0);} }
 
-    .dropdown-content a {
-      display: block;
-      padding: 0.8rem 1rem;
-      text-decoration: none;
-      color: #1d1d1f;
-      font-size: 0.95rem;
-      transition: background 0.2s ease;
-    }
+    h1 { font-size: 2rem; margin-top: 6rem; margin-bottom: 0.5rem; }
+    .counter { font-size: 0.95rem; color: #555; margin-bottom: 2rem; text-align: center; }
 
-    .dropdown-content a:hover {
-      background-color: #f5f5f5;
-    }
-
-    @keyframes dropdownFade {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-top: 6rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .counter {
-      font-size: 0.95rem;
-      color: #555;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-
-    .dashboard-buttons {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.2rem;
-      width: 100%;
-      max-width: 340px;
-    }
-
+    .dashboard-buttons { display: grid; grid-template-columns: 1fr; gap: 1.2rem; width: 100%; max-width: 340px; }
     .btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      border-radius: 12px;
-      background-color: #1d1d1f;
-      color: white;
-      font-size: 1rem;
-      font-weight: 500;
-      text-decoration: none;
-      transition: background-color 0.2s ease-in-out;
+      display: flex; align-items: center; justify-content: center; padding: 1rem; border-radius: 12px;
+      background-color: #1d1d1f; color: white; font-size: 1rem; font-weight: 500; text-decoration: none; transition: background-color 0.2s ease-in-out;
     }
-
-    .btn:hover {
-      background-color: #333;
-    }
-
-    .badge {
-      background-color: crimson;
-      color: white;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border-radius: 10px;
-      padding: 0.25rem 0.5rem;
-      margin-right: 0.5rem;
-    }
+    .btn:hover { background-color: #333; }
+    .badge { background-color: crimson; color: white; font-size: 0.75rem; font-weight: 600; border-radius: 10px; padding: 0.25rem 0.5rem; margin-right: 0.5rem; }
   </style>
 </head>
 <body>
@@ -193,39 +91,26 @@
     const badgeEl = document.getElementById("letterCountBadge");
     const counterTextEl = document.getElementById("counterText");
     const passcode = localStorage.getItem("passcode");
-    const dashboardLink = document.getElementById("dashboardLink");
 
-    if (passcode === "sunlight") {
-      dashboardLink.href = "dashboard_user.html";
-    } else if (passcode === "moonlight") {
-      dashboardLink.href = "dashboard_partner.html";
-    } else {
-      dashboardLink.href = "index.html";
-    }
+    // identity
+    const identityKey = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
 
-    const recipientKey = passcode === "sunlight" ? "her" : passcode === "moonlight" ? "me" : null;
-
-    if (recipientKey) {
+    if (identityKey) {
       const fetchCounts = async () => {
         const snap = await getDocs(collection(db, "letters"));
-        let total = 0;
-        let forMe = 0;
-        let forThem = 0;
+        let total = 0, received = 0, sent = 0;
 
         snap.forEach(doc => {
-          total++;
           const data = doc.data();
-          if (data.recipient === recipientKey) {
-            forMe++;
-          } else {
-            forThem++;
-          }
+          if (!data.recipient || !data.sender) return;
+          total++;
+          if (data.recipient === identityKey) received++;
+          if (data.sender === identityKey) sent++;
         });
 
-        badgeEl.textContent = forMe;
-        counterTextEl.textContent = `💌 Total Letters: ${total} | You received: ${forMe} | They received: ${forThem}`;
+        badgeEl.textContent = received;
+        counterTextEl.textContent = `💌 Total Letters: ${total} | You received: ${received} | You sent: ${sent}`;
       };
-
       fetchCounts();
     } else {
       counterTextEl.textContent = "Login error. Please return to the home page.";
@@ -237,14 +122,17 @@
       const dropdown = document.getElementById("dropdown");
       dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
     }
-
     window.addEventListener("click", function (e) {
       const btn = document.querySelector(".menu-btn");
       const dropdown = document.getElementById("dropdown");
-      if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.style.display = "none";
-      }
+      if (!btn.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = "none";
     });
+
+    const passcode = localStorage.getItem("passcode");
+    const dashboardLink = document.getElementById("dashboardLink");
+    if (passcode === "sunlight") dashboardLink.href = "dashboard_user.html";
+    else if (passcode === "moonlight") dashboardLink.href = "dashboard_partner.html";
+    else dashboardLink.href = "index.html";
   </script>
 </body>
 </html>
