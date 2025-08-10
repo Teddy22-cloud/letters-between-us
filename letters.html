@@ -13,6 +13,7 @@
       --hover-bg: #f0f0f5;
     }
 
+    /* Dusk look for moonlight */
     body.moon {
       background: url("sunset.jpg") no-repeat center center fixed;
       background-size: cover;
@@ -60,9 +61,15 @@
       backdrop-filter: blur(6px);
     }
 
-    .letter-preview:hover { background-color: var(--hover-bg); }
+    .letter-preview:hover {
+      background-color: var(--hover-bg);
+    }
 
-    .letter-title { font-weight: bold; margin-bottom: 0.25rem; font-size: 1.1rem; }
+    .letter-title {
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+      font-size: 1.1rem;
+    }
 
     .preview-text {
       font-size: 0.95rem;
@@ -103,21 +110,29 @@
 
     const passcode = localStorage.getItem("passcode");
 
-    // Normalize identity & theme
-    const identityKey = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
-    if (passcode === "moonlight") document.body.classList.add("moon");
+    // 🌞 sunlight sees letters addressed to "me"
+    // 🌜 moonlight sees letters addressed to "her"
+    const myRecipientKey =
+      passcode === "sunlight" ? "me" :
+      passcode === "moonlight" ? "her" : null;
 
-    if (!identityKey) {
+    // Apply dusk theme for moonlight
+    if (passcode === "moonlight") {
+      document.body.classList.add("moon");
+    }
+
+    if (!myRecipientKey) {
       alert("No passcode found. Please log in again.");
       window.location.href = "index.html";
     } else {
       const inbox = document.getElementById("inbox");
+
       localStorage.setItem("lastInboxOpened", Date.now().toString());
 
       const fetchLetters = async () => {
         const q = query(
           collection(db, "letters"),
-          where("recipient", "==", identityKey), // show what *I* received
+          where("recipient", "==", myRecipientKey),
           orderBy("timestamp", "desc")
         );
 
