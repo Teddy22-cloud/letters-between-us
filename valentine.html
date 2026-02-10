@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Will you be my Valentine?</title>
+  <style>
+    :root{
+      --bg1: #0b1020;
+      --bg2: #1b0b24;
+      --card: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.16);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --yes: rgba(255, 120, 180, 0.90);
+      --yesHover: rgba(255, 120, 180, 1);
+      --no: rgba(255,255,255,0.12);
+      --noHover: rgba(255,255,255,0.18);
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+
+    * { box-sizing: border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(255,120,180,0.18), transparent 55%),
+        radial-gradient(900px 700px at 85% 70%, rgba(120,160,255,0.16), transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+      padding:24px;
+    }
+
+    .card{
+      width:min(720px, 92vw);
+      padding:28px;
+      border-radius:28px;
+      background: var(--card);
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      text-align:center;
+    }
+
+    h1{
+      margin: 8px 0 10px;
+      font-size: clamp(28px, 3.5vw, 44px);
+      letter-spacing: -0.02em;
+    }
+
+    p{
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .stage{
+      position: relative;
+      height: 280px;
+      border-radius: 22px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.12);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+    }
+
+    .buttons-wrap{
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    button{
+      border:none;
+      outline:none;
+      cursor:pointer;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      transition: transform 120ms ease, background 120ms ease, opacity 120ms ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .yes{
+      background: var(--yes);
+      color: rgba(255,255,255,0.98);
+      box-shadow: 0 12px 30px rgba(255, 120, 180, 0.25);
+      position:absolute;
+      left: 50%;
+      top: 58%;
+      transform: translate(-130%, -50%);
+    }
+    .yes:hover{ background: var(--yesHover); transform: translate(-130%, -50%) scale(1.03); }
+
+    .no{
+      background: var(--no);
+      color: rgba(255,255,255,0.92);
+      border: 1px solid rgba(255,255,255,0.14);
+      position:absolute;
+      left: 50%;
+      top: 58%;
+      transform: translate(30%, -50%);
+    }
+    .no:hover{ background: var(--noHover); }
+
+    .hint{
+      position:absolute;
+      left:50%;
+      top: 32%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      color: rgba(255,255,255,0.78);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* Celebration overlay */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 50;
+      padding: 18px;
+    }
+
+    .overlay .modal{
+      width: min(720px, 95vw);
+      border-radius: 28px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+      overflow:hidden;
+      text-align:center;
+      position: relative;
+    }
+
+    .modal-header{
+      padding: 22px 18px 10px;
+    }
+
+    .modal-header h2{
+      margin: 6px 0 6px;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: -0.02em;
+    }
+
+    .modal-header p{
+      margin: 0 0 10px;
+      color: rgba(255,255,255,0.80);
+    }
+
+    .meme{
+      width: 100%;
+      height: min(380px, 52vh);
+      display:block;
+      object-fit: cover;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .modal-footer{
+      padding: 16px 18px 22px;
+      display:flex;
+      gap: 10px;
+      justify-content:center;
+      flex-wrap: wrap;
+    }
+
+    .close{
+      background: rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.92);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 12px 16px;
+      font-weight: 700;
+    }
+    .close:hover{ background: rgba(255,255,255,0.20); transform: scale(1.02); }
+
+    /* Confetti */
+    .confetti{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 60;
+      display:none;
+    }
+    .confetti i{
+      position:absolute;
+      width: 10px;
+      height: 16px;
+      opacity: 0.95;
+      transform: translateY(-40px) rotate(0deg);
+      border-radius: 3px;
+      animation: fall linear forwards;
+    }
+    @keyframes fall{
+      to{
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 1;
+      }
+    }
+
+    .tiny{
+      font-size: 12px;
+      opacity: 0.75;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Will you be my Valentine? 💘</h1>
+    <p>Choose wisely. The “No” option may be… a little shy.</p>
+
+    <div class="stage" id="stage">
+      <div class="hint" id="hint">Go ahead 😌</div>
+
+      <div class="buttons-wrap" id="wrap">
+        <button class="yes" id="yesBtn">Yes 💖</button>
+        <button class="no" id="noBtn" aria-label="No">No 🙃</button>
+      </div>
+    </div>
+
+    <div class="tiny">Tip: try to click “No” 😈</div>
+  </div>
+
+  <!-- Celebration overlay -->
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Yessss!! 🎉💃🕺</h2>
+        <p>I knew it. Now enjoy your victory dance.</p>
+      </div>
+
+      <!-- Replace src with your meme gif or a local file -->
+      <img class="meme" id="memeImg" src="dancing-meme.gif" alt="Dancing celebration meme"/>
+
+      <div class="modal-footer">
+        <button class="close" id="closeBtn">Aww 🥹</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti container -->
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const stage = document.getElementById('stage');
+    const overlay = document.getElementById('overlay');
+    const closeBtn = document.getElementById('closeBtn');
+    const confetti = document.getElementById('confetti');
+    const hint = document.getElementById('hint');
+
+    // Track how many times "No" was attempted
+    let noAttempts = 0;
+
+    // Initial scale for "No" button
+    let noScale = 1;
+
+    // Helper: clamp
+    const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+    function moveNoButton() {
+      noAttempts++;
+
+      // Shrink the button a bit each time (down to 0.35x)
+      noScale = clamp(noScale * 0.88, 0.35, 1);
+
+      // Get stage dimensions
+      const rect = stage.getBoundingClientRect();
+
+      // Get button dimensions (approx after scale)
+      const btnW = noBtn.offsetWidth * noScale;
+      const btnH = noBtn.offsetHeight * noScale;
+
+      // Random position inside stage, leaving padding
+      const padding = 14;
+      const maxX = rect.width - btnW - padding;
+      const maxY = rect.height - btnH - padding;
+
+      const x = Math.random() * maxX + padding;
+      const y = Math.random() * maxY + padding;
+
+      // Apply absolute positioning within stage
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+      noBtn.style.transform = `translate(0,0) scale(${noScale})`;
+
+      // Make it a bit more chaotic after a few attempts
+      if (noAttempts === 1) hint.textContent = "Oops 😅";
+      if (noAttempts === 2) hint.textContent = "Hey! 😈";
+      if (noAttempts === 3) hint.textContent = "Not today 🙃";
+      if (noAttempts >= 4) hint.textContent = "Just say yes 😌💘";
+
+      // If it's tiny, make it also slightly transparent
+      const opacity = clamp(0.95 * (noScale + 0.2), 0.35, 0.95);
+      noBtn.style.opacity = opacity;
+    }
+
+    // Make "No" run away when hovered (desktop) or when touched (mobile)
+    noBtn.addEventListener('mouseenter', moveNoButton);
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    }, { passive: false });
+
+    // Also run away when it gets focus (keyboard navigation)
+    noBtn.addEventListener('focus', moveNoButton);
+
+    // YES: show celebration
+    yesBtn.addEventListener('click', () => {
+      // show overlay
+      overlay.style.display = 'flex';
+
+      // confetti
+      launchConfetti(160);
+
+      // update hint
+      hint.textContent = "Correct answer ✅";
+    });
+
+    closeBtn.addEventListener('click', () => {
+      overlay.style.display = 'none';
+    });
+
+    overlay.addEventListener('click', (e) => {
+      // Close if clicking outside modal
+      if (e.target === overlay) overlay.style.display = 'none';
+    });
+
+    function launchConfetti(count = 120) {
+      confetti.innerHTML = '';
+      confetti.style.display = 'block';
+
+      const colors = [
+        'rgba(255,120,180,0.95)',
+        'rgba(120,160,255,0.95)',
+        'rgba(255,220,120,0.95)',
+        'rgba(180,255,220,0.95)',
+        'rgba(255,255,255,0.90)'
+      ];
+
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('i');
+
+        const left = Math.random() * 100; // vw
+        const sizeW = 6 + Math.random() * 10;
+        const sizeH = 10 + Math.random() * 18;
+        const duration = 1.8 + Math.random() * 2.2;
+        const delay = Math.random() * 0.35;
+
+        piece.style.left = `${left}vw`;
+        piece.style.width = `${sizeW}px`;
+        piece.style.height = `${sizeH}px`;
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = `${duration}s`;
+        piece.style.animationDelay = `${delay}s`;
+
+        confetti.appendChild(piece);
+      }
+
+      // auto-hide after animation
+      setTimeout(() => {
+        confetti.style.display = 'none';
+        confetti.innerHTML = '';
+      }, 3800);
+    }
+
+    // On load: make sure "No" button has absolute positioning inside stage
+    window.addEventListener('load', () => {
+      // Let the button start in a reasonable spot
+      // Switch from centered transform to absolute coordinates
+      noBtn.style.left = '58%';
+      noBtn.style.top = '58%';
+      noBtn.style.transform = 'translate(-50%, -50%) scale(1)';
+      // then convert to pixel position to allow random moves
+      const rect = stage.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const startX = btnRect.left - rect.left;
+      const startY = btnRect.top - rect.top;
+
+      noBtn.style.left = `${startX}px`;
+      noBtn.style.top = `${startY}px`;
+      noBtn.style.transform = `translate(0,0) scale(1)`;
+    });
+  </script>
+</body>
+</html>
