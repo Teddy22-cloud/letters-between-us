@@ -165,6 +165,7 @@
       margin: 6px 0 6px;
       font-size: clamp(22px, 3vw, 34px);
       letter-spacing: -0.02em;
+      color: rgba(255,255,255,0.94);
     }
 
     .modal-header p{
@@ -172,12 +173,45 @@
       color: rgba(255,255,255,0.80);
     }
 
-    .meme{
-      width: 100%;
-      height: min(380px, 52vh);
+    /* Countdown details */
+    .date-details{
+      padding: 22px 18px 10px;
+      color: rgba(255,255,255,0.92);
+      text-align: left;
+    }
+    .date-details h3{
+      text-align:center;
+      margin: 6px 0 6px;
+      font-size: 1.35rem;
+      letter-spacing: -0.01em;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .countdown div {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .countdown span {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .countdown small {
       display:block;
-      object-fit: cover;
-      background: rgba(0,0,0,0.25);
+      margin-top: 2px;
+      font-size: 0.75rem;
+      opacity: 0.8;
     }
 
     .modal-footer{
@@ -227,6 +261,10 @@
       opacity: 0.75;
       margin-top: 10px;
     }
+
+    @media (max-width: 520px){
+      .countdown { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
 </head>
 <body>
@@ -250,12 +288,29 @@
   <div class="overlay" id="overlay">
     <div class="modal">
       <div class="modal-header">
-        <h2>Yessss!! 🎉💃🕺</h2>
-        <p>I knew it. Now enjoy your victory dance.</p>
+        <h2>Yessss!! 🎉💘</h2>
+        <p>I knew it.</p>
       </div>
 
-      <!-- Replace src with your meme gif or a local file -->
-      <img class="meme" id="memeImg" src="dancing-meme.gif" alt="Dancing celebration meme"/>
+      <div class="date-details">
+        <h3>Us, so far 💘</h3>
+
+        <p style="text-align:center; margin: 0 0 14px; color: rgba(255,255,255,0.82);">
+          Since our first date on <strong>July 12, 2025</strong>
+        </p>
+
+        <div class="countdown">
+          <div><span id="days">0</span><small>Days</small></div>
+          <div><span id="hours">0</span><small>Hours</small></div>
+          <div><span id="minutes">0</span><small>Minutes</small></div>
+          <div><span id="seconds">0</span><small>Seconds</small></div>
+        </div>
+
+        <p style="margin-top:18px; text-align:center; color: rgba(255,255,255,0.86);">
+          …and counting ✨<br />
+          <span style="font-weight:600;">Forever to go ♾️</span>
+        </p>
+      </div>
 
       <div class="modal-footer">
         <button class="close" id="closeBtn">Aww 🥹</button>
@@ -280,6 +335,9 @@
 
     // Initial scale for "No" button
     let noScale = 1;
+
+    // Countdown timer handle
+    let countdownInterval = null;
 
     // Helper: clamp
     const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -310,13 +368,13 @@
       noBtn.style.top = `${y}px`;
       noBtn.style.transform = `translate(0,0) scale(${noScale})`;
 
-      // Make it a bit more chaotic after a few attempts
+      // Little escalating hints
       if (noAttempts === 1) hint.textContent = "Oops 😅";
       if (noAttempts === 2) hint.textContent = "Hey! 😈";
       if (noAttempts === 3) hint.textContent = "Not today 🙃";
       if (noAttempts >= 4) hint.textContent = "Just say yes 😌💘";
 
-      // If it's tiny, make it also slightly transparent
+      // Slightly fade as it shrinks
       const opacity = clamp(0.95 * (noScale + 0.2), 0.35, 0.95);
       noBtn.style.opacity = opacity;
     }
@@ -331,15 +389,42 @@
     // Also run away when it gets focus (keyboard navigation)
     noBtn.addEventListener('focus', moveNoButton);
 
-    // YES: show celebration
+    function startCountdown() {
+      // July 12, 2025, 01:00 PM (local time)
+      const startDate = new Date(2025, 6, 12, 13, 0, 0);
+
+      const daysEl = document.getElementById("days");
+      const hoursEl = document.getElementById("hours");
+      const minutesEl = document.getElementById("minutes");
+      const secondsEl = document.getElementById("seconds");
+
+      function update() {
+        const now = new Date();
+        let diff = now - startDate;
+        if (diff < 0) diff = 0;
+
+        const seconds = Math.floor(diff / 1000) % 60;
+        const minutes = Math.floor(diff / (1000 * 60)) % 60;
+        const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        daysEl.textContent = days;
+        hoursEl.textContent = hours;
+        minutesEl.textContent = minutes;
+        secondsEl.textContent = seconds;
+      }
+
+      // Avoid multiple intervals if user clicks YES multiple times
+      if (countdownInterval) clearInterval(countdownInterval);
+      update();
+      countdownInterval = setInterval(update, 1000);
+    }
+
+    // YES: show celebration + start countdown
     yesBtn.addEventListener('click', () => {
-      // show overlay
       overlay.style.display = 'flex';
-
-      // confetti
       launchConfetti(160);
-
-      // update hint
+      startCountdown();
       hint.textContent = "Correct answer ✅";
     });
 
@@ -390,14 +475,12 @@
       }, 3800);
     }
 
-    // On load: make sure "No" button has absolute positioning inside stage
+    // On load: convert "No" button to pixel positioning so it can move randomly
     window.addEventListener('load', () => {
-      // Let the button start in a reasonable spot
-      // Switch from centered transform to absolute coordinates
       noBtn.style.left = '58%';
       noBtn.style.top = '58%';
       noBtn.style.transform = 'translate(-50%, -50%) scale(1)';
-      // then convert to pixel position to allow random moves
+
       const rect = stage.getBoundingClientRect();
       const btnRect = noBtn.getBoundingClientRect();
       const startX = btnRect.left - rect.left;
