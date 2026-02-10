@@ -231,6 +231,16 @@
     }
     .close:hover{ background: rgba(255,255,255,0.20); transform: scale(1.02); }
 
+    /* "Skrrrrr" variant button */
+    .close.skrrr {
+      background: rgba(120,160,255,0.18);
+      border-color: rgba(120,160,255,0.35);
+    }
+    .close.skrrr:hover {
+      background: rgba(120,160,255,0.28);
+      transform: scale(1.02);
+    }
+
     /* Confetti */
     .confetti{
       position: fixed;
@@ -312,11 +322,10 @@
         </p>
       </div>
 
-     <div class="modal-footer">
-  <button class="close" id="closeBtn">Aww 🥹</button>
-  <button class="close skrrr" id="skrrrBtn">Skrrrrr 😎</button>
-</div>
-
+      <div class="modal-footer">
+        <button class="close" id="closeBtn">Aww 🥹</button>
+        <button class="close skrrr" id="skrrrBtn">Skrrrrr 😎</button>
+      </div>
     </div>
   </div>
 
@@ -329,6 +338,7 @@
     const stage = document.getElementById('stage');
     const overlay = document.getElementById('overlay');
     const closeBtn = document.getElementById('closeBtn');
+    const skrrrBtn = document.getElementById('skrrrBtn');
     const confetti = document.getElementById('confetti');
     const hint = document.getElementById('hint');
 
@@ -430,9 +440,20 @@
       hint.textContent = "Correct answer ✅";
     });
 
+    // Aww: close modal
     closeBtn.addEventListener('click', () => {
       overlay.style.display = 'none';
     });
+
+    // Skrrrrr: extra confetti + redirect to letters
+    if (skrrrBtn) {
+      skrrrBtn.addEventListener('click', () => {
+        launchConfetti(90);
+        setTimeout(() => {
+          window.location.href = "letters.html";
+        }, 800);
+      });
+    }
 
     overlay.addEventListener('click', (e) => {
       // Close if clicking outside modal
