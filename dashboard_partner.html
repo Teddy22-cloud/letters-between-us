@@ -42,6 +42,14 @@
     }
     .btn:hover { background-color: #333; }
     .badge { background-color: crimson; color: white; font-size: 0.75rem; font-weight: 600; border-radius: 10px; padding: 0.25rem 0.5rem; margin-right: 0.5rem; }
+
+    /* 💘 Valentine button style (slightly special but still clean) */
+    .btn.valentine {
+      background: linear-gradient(135deg, rgba(255,120,180,0.95), rgba(255,170,120,0.95));
+      color: white;
+      box-shadow: 0 10px 24px rgba(255,120,180,0.20);
+    }
+    .btn.valentine:hover { filter: brightness(1.02); }
   </style>
 </head>
 <body>
@@ -54,6 +62,10 @@
           <a id="dashboardLink" href="#">Dashboard</a>
           <a href="drop.html">Drop a Letter</a>
           <a href="poem.html">Poems</a>
+
+          <!-- ✅ NEW: Valentine link in menu -->
+          <a id="valentineMenuLink" href="valentine.html">Valentine 💘</a>
+
           <a href="about.html">About</a>
         </div>
       </div>
@@ -69,6 +81,10 @@
     </a>
     <a href="drop.html" class="btn">Drop a Letter</a>
     <a href="poem.html" class="btn">Poem</a>
+
+    <!-- ✅ NEW: Valentine button in main grid -->
+    <a id="valentineBtn" href="valentine.html" class="btn valentine">Valentine 💘</a>
+
     <a href="about.html" class="btn">About</a>
   </div>
 
@@ -93,6 +109,14 @@
 
     const passcode = localStorage.getItem("passcode");
     const identityKey = passcode === "sunlight" ? "me" : passcode === "moonlight" ? "her" : null;
+
+    // ✅ Optional guard: if someone isn't moonlight, hide Valentine link/button on this page
+    const valentineBtn = document.getElementById("valentineBtn");
+    const valentineMenuLink = document.getElementById("valentineMenuLink");
+    if (passcode !== "moonlight") {
+      if (valentineBtn) valentineBtn.style.display = "none";
+      if (valentineMenuLink) valentineMenuLink.style.display = "none";
+    }
 
     if (identityKey) {
       const fetchCounts = async () => {
